@@ -6,18 +6,13 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chatbot.databinding.ActivityMainBinding
-import com.google.gson.Gson
-import kotlinx.coroutines.*
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import org.json.JSONException
-import org.json.JSONObject
-import java.io.IOException
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class MainActivity : AppCompatActivity() {
-    val JSON= "application/json; charset=utf-8".toMediaType()
-    var client=OkHttpClient()
+
     private lateinit var binding:ActivityMainBinding
     private lateinit var messageList: ArrayList<Message>
     private lateinit var messageAdapter: MessageAdapter
@@ -64,50 +59,31 @@ class MainActivity : AppCompatActivity() {
     fun addResponse(response: String){
         messageList.removeAt(messageList.size - 1)
         if(response!=""){
-            addToChat(response.toString(),true)
+            addToChat(response,true)
         }
     }
 
       fun callAPI(question:String){
-          messageList.add(Message("Typing...",true))
-          val jsonBody=JSONObject()
-          try{
-              jsonBody.put("model","text-davinci-003")
-              jsonBody.put("prompt",question);
-              jsonBody.put("max_tokens",4000);
-              jsonBody.put("temperature",0);
-          }catch (e:JSONException){
-              e.printStackTrace()
-          }
-          val body=RequestBody.create(JSON,jsonBody.toString())
-          var request=Request.Builder().url("https://api.openai.com/v1/completions/")
-              .header("Authorization","Bearer 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")
-              .post(body)
-              .build()
+         messageList.add(Message("Typing...",true))
 
-          client.newCall(request).enqueue(object :Callback{
-              override fun onFailure(call: Call, e: IOException) {
-                  addResponse("Failed to load response due to "+e.message)
+          val requestBody=RequestBody(null, 4000,"text-davinci-003",1,question,"\n",false,0,1)
+
+         val responseData=ServiceBuilder.buildService(ApiService::class.java)
+          responseData.sendReq("application/json","Bearer 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",requestBody).enqueue(object: Callback<ResponseData>{
+              override fun onResponse(call: Call<ResponseData>, response: Response<ResponseData>) {
+                  Log.i("Response",response.isSuccessful.toString())
+                  if(response.isSuccessful){
+                      addResponse(response.body()!!.choices[0].text)
+                  }
               }
 
-              override fun onResponse(call: Call, response: Response) {
-                  Log.i("Mayank",response.isSuccessful.toString())
-                  if(response.isSuccessful){
-                      try{
-                          val responseData=Gson().fromJson(response.body!!.charStream(),ResponseData::class.java)
-
-                          addResponse(responseData.choices[0].text)
-                      }catch (e:JSONException){
-                          e.printStackTrace()
-                      }
-                  }
-                  else{
-                      Log.i("Mayank",response.body.toString())
-                      addResponse("Failed to load response due to "+ response.body.toString())
-                  }
+              override fun onFailure(call: Call<ResponseData>, t: Throwable) {
+                  addResponse("Failed to load chat due to+ ${call.toString()}")
               }
 
           })
+
+
 
 
     }
