@@ -66,19 +66,23 @@ class MainActivity : AppCompatActivity() {
       fun callAPI(question:String){
          messageList.add(Message("Typing...",true))
 
-          val requestBody=RequestBody(null, 4000,"text-davinci-003",1,question,"\n",false,0,1)
+          val requestBody=RequestBody("text-davinci-003",question)
 
          val responseData=ServiceBuilder.buildService(ApiService::class.java)
-          responseData.sendReq("application/json","Bearer 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",requestBody).enqueue(object: Callback<ResponseData>{
+          responseData.sendReq(requestBody).enqueue(object: Callback<ResponseData>{
+
               override fun onResponse(call: Call<ResponseData>, response: Response<ResponseData>) {
-                  Log.i("Response",response.isSuccessful.toString())
+//                  addResponse(response.isSuccessful.toString())
+                  Log.i("Response",response.toString())
                   if(response.isSuccessful){
                       addResponse(response.body()!!.choices[0].text)
+                  }else{
+                      addResponse("Failed to load data due to"+ response.toString())
                   }
               }
 
               override fun onFailure(call: Call<ResponseData>, t: Throwable) {
-                  addResponse("Failed to load chat due to+ ${call.toString()}")
+                  addResponse("Failed to load chat due to+ $t")
               }
 
           })

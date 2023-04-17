@@ -1,13 +1,13 @@
 package com.example.chatbot
 
+import com.google.gson.annotations.SerializedName
+
 data class RequestBody(
-    val logprobs: Any?=null,
-    val max_tokens: Int,
+
+    @SerializedName("model")
     val model: String,
-    val n: Int,
+
+    @SerializedName("prompt")
     val prompt: String,
-    val stop: String,
-    val stream: Boolean,
-    val temperature: Int,
-    val top_p: Int
+
 )
