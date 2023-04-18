@@ -8,6 +8,6 @@ data class RequestBody(
     val model: String,
 
     @SerializedName("prompt")
-    val prompt: String,
+    var prompt: String,
 
 )

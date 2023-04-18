@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding:ActivityMainBinding
     private lateinit var messageList: ArrayList<Message>
     private lateinit var messageAdapter: MessageAdapter
-
+    private lateinit var history:String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         binding=ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         messageList= arrayListOf()
-
+        history=""
         val send=binding.send
         val message=binding.text
         val recyclerView=binding.recyclerView
@@ -65,8 +65,8 @@ class MainActivity : AppCompatActivity() {
 
       fun callAPI(question:String){
          messageList.add(Message("Typing...",true))
-
-          val requestBody=RequestBody("text-davinci-003",question)
+        history+="$question\n"
+          val requestBody=RequestBody("text-davinci-003",history)
 
          val responseData=ServiceBuilder.buildService(ApiService::class.java)
           responseData.sendReq(requestBody).enqueue(object: Callback<ResponseData>{
@@ -75,7 +75,9 @@ class MainActivity : AppCompatActivity() {
                   addResponse(response.isSuccessful.toString())
                   Log.i("Response",response.toString())
                   if(response.isSuccessful){
-                      addResponse(response.body()!!.choices[0].text)
+                      val msg=response.body()!!.choices[0].text
+                      history+="$msg\n"
+                      addResponse(msg)
                   }else{
                       addResponse("Failed to load data due to "+ response.body().toString())
                   }
