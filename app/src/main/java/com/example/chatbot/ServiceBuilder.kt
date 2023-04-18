@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ServiceBuilder {
     private val client = OkHttpClient.Builder().addInterceptor {
         val newRequest:Request=it.request().newBuilder().addHeader("Content-Type","application/json")
-            .addHeader("Authorization","Bearer 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").build()
+            .addHeader("Authorization","Bearer API_KEY").build()
         it.proceed(newRequest)
     }.build()
 

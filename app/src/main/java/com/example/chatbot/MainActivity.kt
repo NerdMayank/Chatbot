@@ -72,12 +72,12 @@ class MainActivity : AppCompatActivity() {
           responseData.sendReq(requestBody).enqueue(object: Callback<ResponseData>{
 
               override fun onResponse(call: Call<ResponseData>, response: Response<ResponseData>) {
-//                  addResponse(response.isSuccessful.toString())
+                  addResponse(response.isSuccessful.toString())
                   Log.i("Response",response.toString())
                   if(response.isSuccessful){
                       addResponse(response.body()!!.choices[0].text)
                   }else{
-                      addResponse("Failed to load data due to"+ response.toString())
+                      addResponse("Failed to load data due to "+ response.body().toString())
                   }
               }
 
